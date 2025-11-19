@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contacts Manager — Human Error Simulation</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #d9f7e8, #b6f5d1);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 450px;
+            background: #ffffffcc;
+            backdrop-filter: blur(14px);
+            padding: 30px;
+            border-radius: 22px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e5f4d;
+            margin: 0 0 25px 0;
+            font-size: 28px;
+        }
+
+        h3 {
+            color: #2e5f4d;
+            margin: 25px 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #a8d5be;
+            background: #f6fffb;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #45c08a;
+            box-shadow: 0 0 0 3px rgba(69, 192, 138, 0.1);
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.25s;
+            font-size: 14px;
+        }
+
+        .add-btn {
+            width: 100%;
+            background: #45c08a;
+            margin-bottom: 12px;
+        }
+
+        .add-btn:hover {
+            background: #38a775;
+        }
+
+        .add-btn:active {
+            transform: scale(0.98);
+        }
+
+        .delete-all-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .delete-all-btn:hover {
+            background: linear-gradient(135deg, #ff5252, #ee4a5f);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .delete-all-btn:active {
+            transform: translateY(0);
+        }
+
+        .contact {
+            background: white;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .contact:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-info strong {
+            color: #2e5f4d;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .contact-info span {
+            font-size: 13px;
+            color: #5a9d7b;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-left: 10px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        .banner {
+            background: #ffb3b3;
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: bold;
+            color: #800000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #45c08a;
+        }
+
+        #list {
+            min-height: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #list::-webkit-scrollbar-track {
+            background: #f1fff7;
+            border-radius: 10px;
+        }
+
+        #list::-webkit-scrollbar-thumb {
+            background: #b6e8cf;
+            border-radius: 10px;
+        }
+
+        #list::-webkit-scrollbar-thumb:hover {
+            background: #9cd9b8;
+        }
+
+        #logBox {
+            background: #f1fff7;
+            border: 1px solid #b6e8cf;
+            padding: 12px;
+            height: 150px;
+            overflow-y: auto;
+            border-radius: 10px;
+            font-size: 12px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+        }
+
+        #logBox::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #logBox::-webkit-scrollbar-track {
+            background: #e8f7ef;
+            border-radius: 10px;
+        }
+
+        #logBox::-webkit-scrollbar-thumb {
+            background: #b6e8cf;
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #a8d5be;
+            padding: 30px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <h1>📇 Contacts Manager</h1>
+
+        <div id="banner" class="banner">⚠️ Human error simulated: contacts deleted without confirmation.</div>
+
+        <div class="input-group">
+            <input id="nameInput" placeholder="Contact name" />
+            <input id="numberInput" placeholder="Phone number" />
+        </div>
+
+        <button class="add-btn" onclick="addContact()">+ Add Contact</button>
+
+        <button class="delete-all-btn" onclick="deleteAllContacts()">🗑️ Delete All Contacts</button>
+
+        <label class="checkbox-label">
+            <input type="checkbox" id="failToggle" />
+            <span>Enable Human Error Simulation</span>
+        </label>
+
+        <h3>Contacts</h3>
+        <div id="list">
+            <div class="empty-state">No contacts yet. Add one to get started!</div>
+        </div>
+
+        <h3>Logs</h3>
+        <div id="logBox"></div>
+    </div>
+
+    <script>
+        let contacts = [];
+
+        function render() {
+            const list = document.getElementById("list");
+
+            if (contacts.length === 0) {
+                list.innerHTML = '<div class="empty-state">No contacts yet. Add one to get started!</div>';
+                return;
+            }
+
+            list.innerHTML = "";
+            contacts.forEach((c, index) => {
+                const div = document.createElement("div");
+                div.className = "contact";
+                div.innerHTML = `
+                    <div class="contact-info">
+                        <strong>${escapeHtml(c.name)}</strong>
+                        <span>${escapeHtml(c.number)}</span>
+                    </div>
+                    <button class="delete-btn" onclick="deleteSingle(${index})">Delete</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function logEvent(obj) {
+            const box = document.getElementById("logBox");
+            box.textContent += JSON.stringify(obj, null, 2) + "\n\n";
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function addContact() {
+            const name = document.getElementById("nameInput").value.trim();
+            const number = document.getElementById("numberInput").value.trim();
+            if (!name || !number) return;
+
+            contacts.push({ name, number });
+            document.getElementById("nameInput").value = "";
+            document.getElementById("numberInput").value = "";
+            document.getElementById("nameInput").focus();
+            render();
+
+            logEvent({
+                timestamp: new Date().toISOString(),
+                action: "add_contact",
+                contact: { name, number },
+                totalContacts: contacts.length
+            });
+        }
+
+        function deleteSingle(i) {
+            const fail = document.getElementById("failToggle").checked;
+            const removed = contacts.splice(i, 1);
+
+            if (fail) {
+                // HUMAN ERROR SIMULATION for single delete
+                document.getElementById("banner").style.display = "block";
+                logEvent({
+                    timestamp: new Date().toISOString(),
+                    action: "delete_single_contact",
+                    removed: removed[0],
+                    totalContacts: contacts.length,
+                    error: "HUMAN_ERROR"
+                });
+            } else {
+                logEvent({
+                    timestamp: new Date().toISOString(),
+                    action: "delete_single_contact",
+                    removed: removed[0],
+                    totalContacts: contacts.length,
+                    error: null
+                });
+            }
+
+            render();
+        }
+
+        function deleteAllContacts() {
+            const fail = document.getElementById("failToggle").checked;
+            const affected = contacts.length;
+
+            if (affected === 0) return;
+
+            if (fail) {
+                // HUMAN ERROR SIMULATION
+                contacts = [];
+                render();
+                document.getElementById("banner").style.display = "block";
+
+                const log = {
+                    timestamp: new Date().toISOString(),
+                    actor: "user",
+                    action: "delete_all_contacts",
+                    affectedCount: affected,
+                    error: "HUMAN_ERROR",
+                    totalContacts: 0
+                };
+
+                logEvent(log);
+                return;
+            }
+
+            if (confirm(`Delete all ${affected} contact(s)? This cannot be undone.`)) {
+                contacts = [];
+                render();
+                logEvent({
+                    timestamp: new Date().toISOString(),
+                    action: "delete_all_contacts",
+                    affectedCount: affected,
+                    totalContacts: 0,
+                    error: null
+                });
+            }
+        }
+
+        document.getElementById("nameInput").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") document.getElementById("numberInput").focus();
+        });
+        document.getElementById("numberInput").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") addContact();
+        });
+
+        render();
+    </script>
+</body>
+
+</html>
